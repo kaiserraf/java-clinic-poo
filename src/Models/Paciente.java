@@ -1,3 +1,5 @@
+package Models;
+
 public class Paciente {
     public String nome;
     public int idade;

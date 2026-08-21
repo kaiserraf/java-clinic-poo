@@ -1,3 +1,5 @@
+package Models;
+
 public class Medico {
     public String nome;
     public String crm;
