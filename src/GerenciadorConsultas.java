@@ -16,25 +16,25 @@ public class GerenciadorConsultas {
     // tenta agendar uma consulta; se o médico já tiver outra consulta
     // marcada pro mesmo horário, ela vai pra lista de espera
     public void agendar(Consulta consulta) {
-        if (horarioDisponivel(consulta.medico, consulta.data)) {
+        if (horarioDisponivel(consulta.getMedico(), consulta.getData())) {
             consultasAgendadas.add(consulta);
-            System.out.println("Consulta agendada: " + consulta.paciente.nome
-                    + " com Dr(a). " + consulta.medico.nome + " em " + consulta.data);
+            System.out.println("Consulta agendada: " + consulta.getPaciente().getNome()
+                    + " com Dr(a). " + consulta.getMedico().getNome() + " em " + consulta.getData());
         } else {
-            consulta.status = "Em espera";
+            consulta.entrarEmListaEspera();
             listaEspera.add(consulta);
-            System.out.println("Horário ocupado! " + consulta.paciente.nome
-                    + " entrou na lista de espera de Dr(a). " + consulta.medico.nome);
+            System.out.println("Horário ocupado! " + consulta.getPaciente().getNome()
+                    + " entrou na lista de espera de Dr(a). " + consulta.getMedico().getNome());
         }
     }
 
     // verifica se o médico está livre naquele horário exato,
-    // olhando só as consultas com status "Agendada"
+    // olhando só as consultas com status AGENDADA
     private boolean horarioDisponivel(Medico medico, LocalDateTime horario) {
         for (Consulta c : consultasAgendadas) {
-            boolean mesmoMedico = c.medico == medico;
-            boolean mesmoHorario = c.data.equals(horario);
-            boolean estaAgendada = c.status.equals("Agendada");
+            boolean mesmoMedico = c.getMedico() == medico;
+            boolean mesmoHorario = c.getData().equals(horario);
+            boolean estaAgendada = c.getStatus() == Consulta.Status.AGENDADA;
 
             if (mesmoMedico && mesmoHorario && estaAgendada) {
                 return false; // já tem alguém marcado nesse horário com esse médico
@@ -46,19 +46,19 @@ public class GerenciadorConsultas {
     // quando uma consulta é cancelada, tenta puxar o próximo da lista de espera
     // que quer o mesmo médico e o mesmo horário que acabou de abrir
     public void cancelar(Consulta consulta) {
-        consulta.status = "Cancelada";
+        consulta.cancelar();
         consultasAgendadas.remove(consulta);
-        System.out.println("Consulta cancelada: " + consulta.paciente.nome);
+        System.out.println("Consulta cancelada: " + consulta.getPaciente().getNome());
 
         for (Consulta espera : listaEspera) {
-            boolean mesmoMedico = espera.medico == consulta.medico;
-            boolean mesmoHorario = espera.data.equals(consulta.data);
+            boolean mesmoMedico = espera.getMedico() == consulta.getMedico();
+            boolean mesmoHorario = espera.getData().equals(consulta.getData());
 
             if (mesmoMedico && mesmoHorario) {
                 listaEspera.remove(espera);
-                espera.status = "Agendada";
+                espera.confirmar();
                 consultasAgendadas.add(espera);
-                System.out.println("Vaga liberada! " + espera.paciente.nome
+                System.out.println("Vaga liberada! " + espera.getPaciente().getNome()
                         + " foi remanejado(a) da lista de espera.");
                 break; // remaneja só o primeiro da fila, não todo mundo de uma vez
             }
@@ -73,4 +73,3 @@ public class GerenciadorConsultas {
         return listaEspera;
     }
 }
-
