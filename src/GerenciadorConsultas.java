@@ -29,7 +29,7 @@ public class GerenciadorConsultas {
     }
 
     // verifica se o médico está livre naquele horário exato,
-    // olhando só as consultas com status AGENDADA
+    // olhando só as consultas com status AGENDADA==++
     private boolean horarioDisponivel(Medico medico, LocalDateTime horario) {
         for (Consulta c : consultasAgendadas) {
             boolean mesmoMedico = c.getMedico() == medico;
