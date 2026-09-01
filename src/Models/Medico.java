@@ -1,28 +1,18 @@
 package Models;
 
-public class Medico {
+// Medico é uma Pessoa: além do nome (herdado), tem CRM, especialidade
+// e disponibilidade — dados que só fazem sentido para quem atende.
+public class Medico extends Pessoa {
 
-    private String nome;
     private String crm;
     private String especialidade;
     private boolean disponivel;
 
     public Medico(String nome, String crm, String especialidade) {
-        this.setNome(nome);
+        super(nome); // delega para Pessoa a validação e o armazenamento do nome
         this.setCrm(crm);
         this.setEspecialidade(especialidade);
         this.disponivel = true;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        if (nome == null || nome.isBlank()) {
-            throw new IllegalArgumentException("Nome não pode ser vazio");
-        }
-        this.nome = nome;
     }
 
     public String getCrm() {
@@ -60,10 +50,28 @@ public class Medico {
         this.disponivel = true;
     }
 
+    // Sobrescrita (Atividade 8): mesma assinatura da superclasse, mas
+    // aqui o resumo de um médico também mostra especialidade e CRM,
+    // que não existem em Pessoa nem fazem sentido para um Paciente.
+    @Override
+    public void exibirResumo() {
+        System.out.println("Dr(a). " + getNome() + " - " + especialidade + " (CRM " + crm + ")");
+    }
+
+    // Sobrecarga (Atividade 5): mesmo nome "exibirResumo", assinatura
+    // diferente (recebe um boolean). Quando "detalhado" é true, soma-se
+    // a informação de disponibilidade, que só existe em Medico.
+    public void exibirResumo(boolean detalhado) {
+        exibirResumo();
+        if (detalhado) {
+            System.out.println("  Disponível para novas consultas: " + (disponivel ? "sim" : "não"));
+        }
+    }
+
     @Override
     public String toString() {
         return "Medico{" +
-                "nome='" + nome + '\'' +
+                "nome='" + getNome() + '\'' +
                 ", crm='" + crm + '\'' +
                 ", especialidade='" + especialidade + '\'' +
                 ", disponivel=" + disponivel +

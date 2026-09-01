@@ -1,43 +1,41 @@
 import Models.Consulta;
 import Models.Medico;
 import Models.Paciente;
+import Models.Pessoa;
 
 import java.time.LocalDateTime;
 
 public class Main {
 
     public static void main(String[] args) {
-        // cria o médico
-        Medico drCarlos = new Medico();
-        drCarlos.nome = "Carlos";
-        drCarlos.crm = "12345";
-        drCarlos.especialidade = "Cardiologia";
+        // cria o médico e os pacientes usando os construtores das
+        // subclasses, que repassam o nome para Pessoa via super(...)
+        Medico drCarlos = new Medico("Carlos", "12345", "Cardiologia");
+        Paciente joao = new Paciente("João", 40, "111.111.111-11", false);
+        Paciente maria = new Paciente("Maria", 35, "222.222.222-22", false);
 
-        // cria dois pacientes
-        Paciente joao = new Paciente();
-        joao.nome = "João";
-        joao.idade = 40;
-        joao.cpf = "111.111.111-11";
-        joao.possuiConvenio = false;
+        System.out.println("--- Atividade 9: polimorfismo no Main ---");
+        // referências do tipo da SUPERCLASSE apontando para objetos de
+        // subclasses diferentes; o método chamado é sempre exibirResumo(),
+        // mas o comportamento executado depende do objeto real (Medico ou
+        // Paciente), não do tipo da variável
+        Pessoa pessoaA = drCarlos;
+        Pessoa pessoaB = joao;
 
-        Paciente maria = new Paciente();
-        maria.nome = "Maria";
-        maria.idade = 35;
-        maria.cpf = "222.222.222-22";
-        maria.possuiConvenio = false;
+        pessoaA.exibirResumo(); // executa a versão sobrescrita em Medico
+        pessoaB.exibirResumo(); // executa a versão sobrescrita em Paciente
 
-        // os dois vão tentar marcar no mesmo horário, de propósito, pra gerar conflito
+        System.out.println("\n--- Atividade 5: sobrecarga de exibirResumo ---");
+        drCarlos.exibirResumo(true);  // versão detalhada (com disponibilidade)
+        joao.exibirResumo(true);      // versão detalhada (com CPF e histórico)
+
+        System.out.println("\n--- Agendamento de consultas ---");
+        // os dois pacientes vão tentar marcar no mesmo horário, de
+        // propósito, para gerar conflito e testar a lista de espera
         LocalDateTime horario = LocalDateTime.of(2026, 8, 25, 14, 0);
 
-        Consulta consultaJoao = new Consulta();
-        consultaJoao.paciente = joao;
-        consultaJoao.medico = drCarlos;
-        consultaJoao.data = horario;
-
-        Consulta consultaMaria = new Consulta(); // mesmo médico, mesmo horário -> vai gerar conflito
-        consultaMaria.paciente = maria;
-        consultaMaria.medico = drCarlos;
-        consultaMaria.data = horario;
+        Consulta consultaJoao = new Consulta(joao, drCarlos, horario);
+        Consulta consultaMaria = new Consulta(maria, drCarlos, horario); // mesmo médico, mesmo horário -> conflito
 
         GerenciadorConsultas gerenciador = new GerenciadorConsultas();
 
@@ -46,5 +44,12 @@ public class Main {
 
         System.out.println("\n--- Cancelando a consulta do João ---");
         gerenciador.cancelar(consultaJoao);  // Maria deve ser remanejada automaticamente
+
+        System.out.println("\n--- Maria realiza a consulta remanejada (via exibirResumo detalhado) ---");
+        // consultaJoao foi cancelada; consultaMaria é quem assume o horário
+        // liberado e passa a status AGENDADA, então é ela que pode ser
+        // realizada agora
+        consultaMaria.realizar();
+        maria.exibirResumo(true); // totalConsultasRealizadas deve aparecer como 1
     }
 }
